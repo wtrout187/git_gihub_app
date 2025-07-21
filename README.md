@@ -274,16 +274,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 ### Welcome Screen
-![Welcome Screen](https://via.placeholder.com/800x450?text=Git+%26+GitHub+Mastery+App+-+Welcome+Screen)
+<img src="./public/screenshots/WelcomeG&GA.png" alt="Welcome Screen" width="800">
 
 ### Learning Dashboard
-![Dashboard](https://via.placeholder.com/800x450?text=Git+%26+GitHub+Mastery+App+-+Dashboard)
+<img src="./public/screenshots/DashboardG&GA.png" alt="Dashboard" width="800">
 
 ### Interactive Lessons
-![Lessons](https://via.placeholder.com/800x450?text=Git+%26+GitHub+Mastery+App+-+Interactive+Lessons)
+<img src="./public/screenshots/InteractiveLessonG&GA.png" alt="Interactive Lessons" width="800">
 
 ### Community Wiki
-![Community Wiki](https://via.placeholder.com/800x450?text=Git+%26+GitHub+Mastery+App+-+Community+Wiki)
+<img src="./public/screenshots/WikiG&GA.png" alt="Community Wiki" width="800">
 
 </div>
 

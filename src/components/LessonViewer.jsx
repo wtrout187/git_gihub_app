@@ -307,7 +307,7 @@ const LessonViewer = ({
                         {lesson.id === "4-1" && (
                           <iframe 
                             className="w-full h-96"
-                            src="https://www.youtube.com/embed/KcHjcNnBvBY" 
+                            src="https://www.youtube.com/embed/Lf3DYRvCPFo" 
                             title="AI Tools for Git" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
