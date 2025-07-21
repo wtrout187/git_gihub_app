@@ -1,0 +1,2540 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Code, Terminal, Zap, Award, BookOpen, Users, GitBranch, Star, Trophy, CheckCircle, ArrowRight, Github, Play, User, Settings, TrendingUp, Target, Lightbulb, Coffee, Clock, Rocket, ArrowLeft, Check, X, Copy, RefreshCw, FileText, MessageSquare, AlertCircle } from 'lucide-react';
+
+const GitMasteryApp = () => {
+  const [currentStep, setCurrentStep] = useState('welcome');
+  const [userProfile, setUserProfile] = useState({
+    name: '',
+    experience: '',
+    environment: '',
+    goals: [],
+    style: ''
+  });
+  const [progress, setProgress] = useState({});
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [completedLessons, setCompletedLessons] = useState(new Set());
+  const [achievements, setAchievements] = useState([]);
+
+  const triggerConfetti = () => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+  };
+
+  const Confetti = () => (
+    <div className="fixed inset-0 pointer-events-none z-50">
+      {[...Array(50)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute animate-pulse"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 2}s`,
+            animationDuration: `${2 + Math.random() * 2}s`
+          }}
+        >
+          🎉
+        </div>
+      ))}
+    </div>
+  );
+
+  // Lesson content data
+  const lessonsData = {
+    1: { // Git Fundamentals
+      title: "Git Fundamentals",
+      lessons: [
+        {
+          id: "1-1",
+          title: "What is Git?",
+          content: {
+            theory: `Git is a distributed version control system that helps you track changes in your code over time. Think of it as a time machine for your code!
+
+Key concepts:
+• Version Control: Track every change made to your files
+• Distributed: Every developer has a complete copy of the project history
+• Collaboration: Work with others without stepping on each other's toes`,
+
+            practice: {
+              title: "Check if Git is installed",
+              description: "Let's verify Git is installed on your system",
+              command: "git --version",
+              expectedOutput: "git version 2.x.x",
+              hint: "If Git isn't installed, visit git-scm.com to download it"
+            },
+
+            quiz: [
+              {
+                question: "What type of system is Git?",
+                options: ["Centralized version control", "Distributed version control", "File storage system", "Code editor"],
+                correct: 1,
+                explanation: "Git is a distributed version control system where every developer has a full copy of the repository"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-2",
+          title: "Setting Up Git",
+          content: {
+            theory: `Before using Git, you need to configure it with your identity. This information will be attached to every commit you make.
+
+Configuration levels:
+• System: Applies to all users on the system
+• Global: Applies to all your projects
+• Local: Applies to a specific project only`,
+
+            practice: {
+              title: "Configure your Git identity",
+              description: "Set up your name and email for Git commits",
+              command: `git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"`,
+              expectedOutput: "Configuration saved successfully",
+              hint: "Use your real name and email - these will be visible in your commits"
+            },
+
+            quiz: [
+              {
+                question: "Which command sets your email for all Git projects?",
+                options: ["git config user.email", "git config --global user.email", "git set email", "git email --global"],
+                correct: 1,
+                explanation: "The --global flag sets the configuration for all your Git projects"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-3",
+          title: "Creating Your First Repository",
+          content: {
+            theory: `A Git repository (repo) is a directory that Git tracks. It contains all your project files and the entire history of changes.
+
+Two ways to create a repo:
+• git init: Create a new repository from scratch
+• git clone: Copy an existing repository`,
+
+            practice: {
+              title: "Initialize a new repository",
+              description: "Create your first Git repository",
+              command: `mkdir my-first-repo
+cd my-first-repo
+git init`,
+              expectedOutput: "Initialized empty Git repository in .../my-first-repo/.git/",
+              hint: "The .git folder contains all the Git tracking information"
+            },
+
+            quiz: [
+              {
+                question: "What does 'git init' do?",
+                options: ["Downloads a repository", "Creates a new Git repository", "Deletes a repository", "Updates Git"],
+                correct: 1,
+                explanation: "git init initializes a new Git repository in the current directory"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-4",
+          title: "Understanding the Working Directory",
+          content: {
+            theory: `Git tracks files in three main areas:
+
+1. Working Directory: Where you modify files
+2. Staging Area (Index): Where you prepare changes for commit
+3. Repository: Where Git permanently stores changes
+
+The workflow: Working Directory → Staging Area → Repository`,
+
+            practice: {
+              title: "Check repository status",
+              description: "See the current state of your repository",
+              command: "git status",
+              expectedOutput: "On branch main\nNothing to commit, working tree clean",
+              hint: "git status is your best friend - use it often!"
+            },
+
+            quiz: [
+              {
+                question: "What are the three main areas in Git?",
+                options: [
+                  "Local, Remote, Cloud",
+                  "Working Directory, Staging Area, Repository",
+                  "Code, Comments, Documentation",
+                  "Branch, Tag, Commit"
+                ],
+                correct: 1,
+                explanation: "Git uses Working Directory (edit), Staging Area (prepare), and Repository (store)"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-5",
+          title: "Making Your First Commit",
+          content: {
+            theory: `A commit is a snapshot of your project at a specific point in time. Each commit has:
+• A unique identifier (SHA-1 hash)
+• Author information
+• Timestamp
+• Commit message
+• Pointer to previous commit(s)
+
+Good commit messages are crucial for project history!`,
+
+            practice: {
+              title: "Create and commit a file",
+              description: "Make your first Git commit",
+              command: `echo "# My First Project" > README.md
+git add README.md
+git commit -m "Initial commit: Add README"`,
+              expectedOutput: "[main (root-commit) abc1234] Initial commit: Add README\n 1 file changed, 1 insertion(+)",
+              hint: "Write clear, descriptive commit messages"
+            },
+
+            quiz: [
+              {
+                question: "What command stages files for commit?",
+                options: ["git commit", "git add", "git stage", "git push"],
+                correct: 1,
+                explanation: "git add stages files, moving them from working directory to staging area"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-6",
+          title: "Viewing History",
+          content: {
+            theory: `Git maintains a complete history of all changes. You can:
+• View commit history
+• See what changed in each commit
+• Find who made specific changes
+• Travel back in time to any commit
+
+The commit history forms a timeline of your project's evolution.`,
+
+            practice: {
+              title: "Explore commit history",
+              description: "View your repository's history",
+              command: `git log --oneline --graph --all`,
+              expectedOutput: "* abc1234 (HEAD -> main) Initial commit: Add README",
+              hint: "Try 'git log --help' to see all the options"
+            },
+
+            quiz: [
+              {
+                question: "Which command shows commit history?",
+                options: ["git history", "git commits", "git log", "git show"],
+                correct: 2,
+                explanation: "git log displays the commit history with various formatting options"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-7",
+          title: "Understanding .gitignore",
+          content: {
+            theory: `.gitignore tells Git which files to ignore. Common examples:
+• Build artifacts (dist/, build/)
+• Dependencies (node_modules/, venv/)
+• System files (.DS_Store, Thumbs.db)
+• Sensitive data (.env, config.local.js)
+• IDE files (.vscode/, .idea/)
+
+Patterns:
+• *.log - ignore all .log files
+• /build - ignore build directory at root
+• docs/**/*.pdf - ignore all PDFs in docs`,
+
+            practice: {
+              title: "Create a .gitignore file",
+              description: "Set up Git to ignore certain files",
+              command: `echo "node_modules/\n*.log\n.env" > .gitignore
+git add .gitignore
+git commit -m "Add .gitignore"`,
+              expectedOutput: "[main abc1234] Add .gitignore\n 1 file changed, 3 insertions(+)",
+              hint: "GitHub provides templates at github.com/github/gitignore"
+            },
+
+            quiz: [
+              {
+                question: "What does .gitignore do?",
+                options: [
+                  "Deletes files from the repository",
+                  "Tells Git which files not to track",
+                  "Hides files from other users",
+                  "Removes files from commits"
+                ],
+                correct: 1,
+                explanation: ".gitignore specifies intentionally untracked files that Git should ignore"
+              }
+            ]
+          }
+        },
+        {
+          id: "1-8",
+          title: "Git Fundamentals Review",
+          content: {
+            theory: `Congratulations! You've learned Git fundamentals:
+
+✓ What Git is and why it's important
+✓ How to configure Git
+✓ Creating repositories
+✓ The Git workflow (working → staging → repository)
+✓ Making commits
+✓ Viewing history
+✓ Using .gitignore
+
+Next up: Branching strategies!`,
+
+            practice: {
+              title: "Complete workflow practice",
+              description: "Practice the complete Git workflow",
+              command: `# Create a new project
+mkdir git-practice && cd git-practice
+git init
+
+# Create files
+echo "# Git Practice" > README.md
+echo "console.log('Hello Git!');" > app.js
+
+# Stage and commit
+git add .
+git commit -m "Initial project setup"
+
+# Check status and history
+git status
+git log --oneline`,
+              expectedOutput: "Successfully created repository with initial commit",
+              hint: "This is the basic workflow you'll use thousands of times!"
+            },
+
+            quiz: [
+              {
+                question: "What's the correct order of the Git workflow?",
+                options: [
+                  "Commit → Add → Edit",
+                  "Edit → Add → Commit",
+                  "Add → Edit → Commit",
+                  "Edit → Commit → Add"
+                ],
+                correct: 1,
+                explanation: "The workflow is: Edit files → Add to staging → Commit to repository"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    2: { // Branching Mastery
+      title: "Branching Mastery",
+      lessons: [
+        {
+          id: "2-1",
+          title: "Understanding Branches",
+          content: {
+            theory: `Branches are one of Git's most powerful features. A branch is simply a movable pointer to a commit.
+
+Key concepts:
+• Main/Master branch: The default branch
+• Feature branches: For developing new features
+• HEAD: Points to the current branch
+• Branches enable parallel development
+
+Think of branches as parallel universes for your code!`,
+
+            practice: {
+              title: "View and create branches",
+              description: "Explore Git branching",
+              command: `git branch
+git branch feature-login
+git branch`,
+              expectedOutput: "* main\n  feature-login",
+              hint: "The asterisk (*) shows your current branch"
+            },
+
+            quiz: [
+              {
+                question: "What is a Git branch?",
+                options: [
+                  "A copy of the entire repository",
+                  "A movable pointer to a commit",
+                  "A separate folder for code",
+                  "A backup of your project"
+                ],
+                correct: 1,
+                explanation: "A branch is simply a lightweight movable pointer to a commit"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-2",
+          title: "Creating and Switching Branches",
+          content: {
+            theory: `Working with branches involves:
+• Creating branches: git branch <name>
+• Switching branches: git checkout <name>
+• Create + switch: git checkout -b <name>
+
+Modern Git (2.23+) introduced:
+• git switch <branch> - switch branches
+• git switch -c <branch> - create and switch`,
+
+            practice: {
+              title: "Create and switch to a new branch",
+              description: "Practice branch navigation",
+              command: `git checkout -b feature-navbar
+# Or with modern Git:
+git switch -c feature-navbar`,
+              expectedOutput: "Switched to a new branch 'feature-navbar'",
+              hint: "Use descriptive branch names like feature/, bugfix/, or hotfix/"
+            },
+
+            quiz: [
+              {
+                question: "Which command creates AND switches to a new branch?",
+                options: [
+                  "git branch -new",
+                  "git checkout -b",
+                  "git switch",
+                  "git create"
+                ],
+                correct: 1,
+                explanation: "git checkout -b creates a new branch and switches to it immediately"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-3",
+          title: "Working on Branches",
+          content: {
+            theory: `Each branch maintains its own history and changes. When you switch branches:
+• Your working directory updates to match the branch
+• You can work independently without affecting other branches
+• Changes are isolated until you merge
+
+This enables:
+• Feature development
+• Bug fixes
+• Experimentation
+• Collaboration`,
+
+            practice: {
+              title: "Make changes on a branch",
+              description: "Create commits on a feature branch",
+              command: `# On feature-navbar branch
+echo "<nav>Home | About | Contact</nav>" > navbar.html
+git add navbar.html
+git commit -m "Add navigation bar"
+
+# Switch back to main
+git checkout main
+ls  # navbar.html doesn't exist here!`,
+              expectedOutput: "Changes isolated to feature branch",
+              hint: "Each branch has its own working directory state"
+            },
+
+            quiz: [
+              {
+                question: "Are changes on one branch visible on other branches?",
+                options: [
+                  "Yes, always",
+                  "No, until merged",
+                  "Only on main branch",
+                  "Only if pushed"
+                ],
+                correct: 1,
+                explanation: "Changes on a branch are isolated until you merge them"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-4",
+          title: "Merging Branches",
+          content: {
+            theory: `Merging combines changes from different branches. Types of merges:
+
+1. Fast-forward merge: When there's a linear path
+2. Three-way merge: When branches have diverged
+3. Merge commit: Creates a new commit for the merge
+
+Best practices:
+• Merge feature branches into main
+• Keep main branch stable
+• Test before merging`,
+
+            practice: {
+              title: "Merge a feature branch",
+              description: "Combine branches with git merge",
+              command: `# Switch to main
+git checkout main
+
+# Merge feature branch
+git merge feature-navbar
+
+# View the result
+git log --oneline --graph`,
+              expectedOutput: "Fast-forward merge completed",
+              hint: "Always merge INTO the branch you want to update"
+            },
+
+            quiz: [
+              {
+                question: "To merge feature-x into main, you should:",
+                options: [
+                  "Checkout feature-x, run git merge main",
+                  "Checkout main, run git merge feature-x",
+                  "Run git merge from any branch",
+                  "Delete feature-x first"
+                ],
+                correct: 1,
+                explanation: "Checkout the target branch (main) then merge the source branch into it"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-5",
+          title: "Handling Merge Conflicts",
+          content: {
+            theory: `Merge conflicts occur when Git can't automatically merge changes. This happens when:
+• Same lines modified in both branches
+• File deleted in one branch, modified in another
+
+Resolving conflicts:
+1. Git marks conflicts in files
+2. You manually edit to resolve
+3. Stage the resolved files
+4. Complete the merge with a commit`,
+
+            practice: {
+              title: "Resolve a merge conflict",
+              description: "Handle conflicting changes",
+              command: `# If you see a conflict:
+<<<<<<< HEAD
+Current branch content
+=======
+Incoming branch content
+>>>>>>> feature-branch
+
+# Edit file to resolve, then:
+git add <resolved-file>
+git commit`,
+              expectedOutput: "Merge conflict resolved",
+              hint: "VS Code and other editors have built-in merge conflict resolution tools"
+            },
+
+            quiz: [
+              {
+                question: "What indicates a merge conflict in a file?",
+                options: [
+                  "ERROR messages",
+                  "<<<<<<< markers",
+                  "File turns red",
+                  "Git deletes the file"
+                ],
+                correct: 1,
+                explanation: "Git uses <<<<<<< HEAD and >>>>>>> markers to show conflicting sections"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-6",
+          title: "Branch Management",
+          content: {
+            theory: `Keep your repository clean with good branch management:
+
+• Delete merged branches: git branch -d <branch>
+• Force delete unmerged: git branch -D <branch>
+• List all branches: git branch -a
+• Show merged branches: git branch --merged
+• Rename branches: git branch -m old-name new-name
+
+Remote branches:
+• git push origin <branch> - push branch to remote
+• git push origin --delete <branch> - delete remote branch`,
+
+            practice: {
+              title: "Clean up branches",
+              description: "Delete merged branches",
+              command: `# List branches
+git branch
+
+# Delete merged branch
+git branch -d feature-navbar
+
+# List merged branches
+git branch --merged`,
+              expectedOutput: "Deleted branch feature-navbar",
+              hint: "Regularly clean up merged branches to keep your repo organized"
+            },
+
+            quiz: [
+              {
+                question: "How do you delete a merged local branch?",
+                options: [
+                  "git delete branch-name",
+                  "git branch -d branch-name",
+                  "git remove branch-name",
+                  "git branch --delete-merged"
+                ],
+                correct: 1,
+                explanation: "git branch -d safely deletes merged branches"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-7",
+          title: "Branching Strategies",
+          content: {
+            theory: `Common branching strategies:
+
+1. Git Flow:
+   • main: Production code
+   • develop: Integration branch
+   • feature/*: New features
+   • release/*: Release preparation
+   • hotfix/*: Emergency fixes
+
+2. GitHub Flow:
+   • main: Always deployable
+   • feature branches: Everything else
+
+3. GitLab Flow:
+   • Environment branches
+   • Release branches`,
+
+            practice: {
+              title: "Implement Git Flow basics",
+              description: "Create a branching structure",
+              command: `# Create develop branch
+git checkout -b develop
+
+# Create feature from develop
+git checkout -b feature/user-auth
+
+# Work on feature...
+# Merge back to develop
+git checkout develop
+git merge feature/user-auth`,
+              expectedOutput: "Git Flow structure created",
+              hint: "Choose a strategy that fits your team's workflow"
+            },
+
+            quiz: [
+              {
+                question: "In Git Flow, where do feature branches merge?",
+                options: [
+                  "Directly to main",
+                  "To develop branch",
+                  "To release branch",
+                  "To hotfix branch"
+                ],
+                correct: 1,
+                explanation: "Feature branches merge into develop for integration testing"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-8",
+          title: "Advanced Branching: Rebasing",
+          content: {
+            theory: `Rebasing is another way to integrate changes. Instead of merging, it:
+• Moves commits to a new base
+• Creates a linear history
+• Rewrites commit history
+
+When to rebase:
+• Cleaning up local branches
+• Updating feature branches
+• Before merging to main
+
+Golden rule: Never rebase public branches!`,
+
+            practice: {
+              title: "Rebase a feature branch",
+              description: "Use rebase for cleaner history",
+              command: `# Update feature branch with main
+git checkout feature-branch
+git rebase main
+
+# Interactive rebase
+git rebase -i HEAD~3`,
+              expectedOutput: "Successfully rebased feature-branch onto main",
+              hint: "Rebase rewrites history - use with caution"
+            },
+
+            quiz: [
+              {
+                question: "What's the main difference between merge and rebase?",
+                options: [
+                  "Merge is faster",
+                  "Rebase creates linear history",
+                  "Merge deletes branches",
+                  "Rebase is safer"
+                ],
+                correct: 1,
+                explanation: "Rebase creates a linear history by moving commits to a new base"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-9",
+          title: "Cherry-picking Commits",
+          content: {
+            theory: `Cherry-pick allows you to apply specific commits from one branch to another.
+
+Use cases:
+• Applying hotfixes to multiple branches
+• Moving commits between branches
+• Selective integration
+
+Syntax: git cherry-pick <commit-hash>
+
+Be careful: Cherry-picking can lead to duplicate commits!`,
+
+            practice: {
+              title: "Cherry-pick a commit",
+              description: "Apply specific commits",
+              command: `# Find commit to cherry-pick
+git log --oneline feature-branch
+
+# Cherry-pick it
+git cherry-pick abc1234
+
+# Cherry-pick multiple
+git cherry-pick abc1234 def5678`,
+              expectedOutput: "Successfully cherry-picked commit abc1234",
+              hint: "Use git log to find commit hashes"
+            },
+
+            quiz: [
+              {
+                question: "What does cherry-pick do?",
+                options: [
+                  "Deletes specific commits",
+                  "Applies specific commits to current branch",
+                  "Merges entire branches",
+                  "Creates new branches"
+                ],
+                correct: 1,
+                explanation: "Cherry-pick applies specific commits from one branch to another"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-10",
+          title: "Stashing Changes",
+          content: {
+            theory: `Git stash temporarily saves uncommitted changes. Perfect for:
+• Switching branches with work in progress
+• Pulling updates without committing
+• Experimenting safely
+
+Commands:
+• git stash: Save changes
+• git stash pop: Apply and remove latest stash
+• git stash list: Show all stashes
+• git stash apply: Apply without removing`,
+
+            practice: {
+              title: "Use git stash",
+              description: "Save work in progress",
+              command: `# Make some changes
+echo "work in progress" >> file.txt
+
+# Stash changes
+git stash save "WIP: new feature"
+
+# Switch branches, do work...
+
+# Restore stashed changes
+git stash pop`,
+              expectedOutput: "Changes stashed and restored",
+              hint: "Name your stashes for easy identification"
+            },
+
+            quiz: [
+              {
+                question: "When is git stash most useful?",
+                options: [
+                  "Deleting commits",
+                  "Saving uncommitted changes temporarily",
+                  "Creating branches",
+                  "Pushing to remote"
+                ],
+                correct: 1,
+                explanation: "Stash saves uncommitted changes when you need to switch context"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-11",
+          title: "Branch Protection and Policies",
+          content: {
+            theory: `Protect important branches with policies:
+
+GitHub/GitLab features:
+• Require pull request reviews
+• Require status checks to pass
+• Restrict who can push
+• Require up-to-date branches
+• Require signed commits
+
+Local protection:
+• Pre-commit hooks
+• Branch naming conventions
+• Automated testing`,
+
+            practice: {
+              title: "Set up branch protection",
+              description: "Configure protection rules",
+              command: `# In GitHub/GitLab settings:
+# 1. Go to Settings > Branches
+# 2. Add rule for 'main'
+# 3. Enable:
+#    - Require PR reviews
+#    - Dismiss stale reviews
+#    - Require status checks
+
+# Local hook example:
+echo '#!/bin/sh
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" = "main" ]; then
+  echo "Direct commits to main branch are not allowed!"
+  exit 1
+fi' > .git/hooks/pre-commit`,
+              expectedOutput: "Branch protection configured",
+              hint: "Protection rules prevent accidental damage to important branches"
+            },
+
+            quiz: [
+              {
+                question: "What's a benefit of branch protection?",
+                options: [
+                  "Faster commits",
+                  "Prevents direct commits to main",
+                  "Automatic merging",
+                  "Deletes old branches"
+                ],
+                correct: 1,
+                explanation: "Branch protection prevents direct commits and enforces review processes"
+              }
+            ]
+          }
+        },
+        {
+          id: "2-12",
+          title: "Branching Mastery Review",
+          content: {
+            theory: `You're now a branching expert! You've learned:
+
+✓ Branch concepts and creation
+✓ Switching and working on branches
+✓ Merging and conflict resolution
+✓ Branch management and cleanup
+✓ Branching strategies (Git Flow, GitHub Flow)
+✓ Advanced techniques (rebase, cherry-pick)
+✓ Stashing changes
+✓ Branch protection
+
+These skills enable professional collaborative development!`,
+
+            practice: {
+              title: "Complete branching workflow",
+              description: "Practice full branching workflow",
+              command: `# Create feature branch
+git checkout -b feature/awesome
+
+# Make changes
+echo "awesome feature" > feature.txt
+git add . && git commit -m "Add awesome feature"
+
+# Update from main
+git checkout main
+git pull origin main
+git checkout feature/awesome
+git rebase main
+
+# Merge back
+git checkout main
+git merge feature/awesome
+git branch -d feature/awesome`,
+              expectedOutput: "Complete workflow executed successfully",
+              hint: "This workflow is the foundation of collaborative development"
+            },
+
+            quiz: [
+              {
+                question: "What's the recommended flow for feature development?",
+                options: [
+                  "Work on main directly",
+                  "Create branch → develop → merge → delete branch",
+                  "Never merge branches",
+                  "Rebase everything to main"
+                ],
+                correct: 1,
+                explanation: "The standard flow is: create feature branch, develop, merge when ready, cleanup"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    3: { // GitHub Collaboration
+      title: "GitHub Collaboration",
+      lessons: [
+        {
+          id: "3-1",
+          title: "Introduction to GitHub",
+          content: {
+            theory: `GitHub is a web-based platform for version control and collaboration. It's built on Git and adds:
+
+• Remote repository hosting
+• Pull requests for code review
+• Issues for tracking tasks and bugs
+• Actions for CI/CD
+• Social coding features
+• Project management tools
+
+GitHub is where the world builds software!`,
+
+            practice: {
+              title: "Create a GitHub account",
+              description: "Join the world's largest developer community",
+              command: `# Visit github.com
+# Sign up with:
+# - Username (choose wisely!)
+# - Email
+# - Password
+
+# Verify your email
+# Complete profile setup`,
+              expectedOutput: "GitHub account created successfully",
+              hint: "Your username becomes part of your professional identity"
+            },
+
+            quiz: [
+              {
+                question: "What is GitHub?",
+                options: [
+                  "A code editor",
+                  "A web-based Git repository hosting service",
+                  "A programming language",
+                  "A local Git GUI"
+                ],
+                correct: 1,
+                explanation: "GitHub is a web platform that hosts Git repositories and adds collaboration features"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-2",
+          title: "Working with Remote Repositories",
+          content: {
+            theory: `Remote repositories are versions of your project hosted on the internet.
+
+Key commands:
+• git remote: Manage remote connections
+• git push: Upload changes
+• git pull: Download changes
+• git fetch: Download without merging
+• git clone: Copy a repository
+
+Origin: The default remote name`,
+
+            practice: {
+              title: "Connect local and remote repos",
+              description: "Link your local repo to GitHub",
+              command: `# Create repo on GitHub first, then:
+git remote add origin https://github.com/username/repo.git
+
+# Verify remote
+git remote -v
+
+# Push to remote
+git push -u origin main`,
+              expectedOutput: "Branch 'main' set up to track remote branch 'main' from 'origin'",
+              hint: "The -u flag sets up tracking between local and remote branches"
+            },
+
+            quiz: [
+              {
+                question: "What does 'origin' typically refer to?",
+                options: [
+                  "Your local repository",
+                  "The default remote repository",
+                  "The main branch",
+                  "The first commit"
+                ],
+                correct: 1,
+                explanation: "'origin' is the conventional name for your default remote repository"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-3",
+          title: "Cloning and Forking",
+          content: {
+            theory: `Two ways to copy repositories:
+
+Cloning:
+• Creates a local copy
+• Direct connection to original
+• For repos you have access to
+
+Forking:
+• Creates your own copy on GitHub
+• Independent from original
+• For contributing to others' projects
+• Enables pull requests`,
+
+            practice: {
+              title: "Clone a repository",
+              description: "Get a local copy of a remote repo",
+              command: `# Clone via HTTPS
+git clone https://github.com/username/repo.git
+
+# Clone via SSH (if configured)
+git clone git@github.com:username/repo.git
+
+# Clone into specific directory
+git clone https://github.com/username/repo.git my-directory`,
+              expectedOutput: "Cloning into 'repo'... done.",
+              hint: "Use SSH for repos you frequently push to"
+            },
+
+            quiz: [
+              {
+                question: "When should you fork instead of clone?",
+                options: [
+                  "Always",
+                  "When contributing to others' projects",
+                  "For private repositories",
+                  "Never"
+                ],
+                correct: 1,
+                explanation: "Fork when you want to contribute to a project you don't have write access to"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-4",
+          title: "Pull Requests Basics",
+          content: {
+            theory: `Pull Requests (PRs) are GitHub's way of proposing changes:
+
+• Propose changes from your branch
+• Enable code review and discussion
+• Run automated tests
+• Merge when approved
+
+PR workflow:
+1. Create feature branch
+2. Push changes
+3. Open PR
+4. Review and discuss
+5. Merge or close`,
+
+            practice: {
+              title: "Create your first pull request",
+              description: "Propose changes via PR",
+              command: `# Create and push feature branch
+git checkout -b add-feature
+# Make changes...
+git add . && git commit -m "Add new feature"
+git push origin add-feature
+
+# On GitHub:
+# 1. Click "Compare & pull request"
+# 2. Add title and description
+# 3. Create pull request`,
+              expectedOutput: "Pull request #1 created",
+              hint: "Write clear PR descriptions explaining what and why"
+            },
+
+            quiz: [
+              {
+                question: "What's the purpose of a pull request?",
+                options: [
+                  "Delete branches",
+                  "Propose and discuss changes before merging",
+                  "Pull code from remote",
+                  "Create new repositories"
+                ],
+                correct: 1,
+                explanation: "PRs facilitate code review and discussion before merging changes"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-5",
+          title: "Code Reviews",
+          content: {
+            theory: `Code reviews improve code quality and share knowledge:
+
+Review aspects:
+• Code correctness
+• Style and conventions
+• Performance
+• Security
+• Documentation
+• Tests
+
+GitHub review features:
+• Line-by-line comments
+• Suggestions
+• Approve/Request changes
+• Conversations`,
+
+            practice: {
+              title: "Review a pull request",
+              description: "Provide constructive feedback",
+              command: `# On GitHub PR page:
+# 1. Click "Files changed"
+# 2. Hover over line numbers to comment
+# 3. Add review comments
+# 4. Submit review with:
+#    - Comment (general feedback)
+#    - Approve (ready to merge)
+#    - Request changes (needs work)
+
+# Suggesting changes:
+# Click ± button and edit directly`,
+              expectedOutput: "Review submitted",
+              hint: "Be constructive and specific in reviews"
+            },
+
+            quiz: [
+              {
+                question: "What's a best practice for code reviews?",
+                options: [
+                  "Only point out errors",
+                  "Approve everything quickly",
+                  "Provide constructive feedback",
+                  "Rewrite all the code"
+                ],
+                correct: 2,
+                explanation: "Good reviews provide constructive feedback to improve code quality"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-6",
+          title: "GitHub Issues",
+          content: {
+            theory: `Issues track tasks, enhancements, and bugs:
+
+Features:
+• Labels for categorization
+• Assignees for ownership
+• Milestones for grouping
+• Projects for planning
+• Templates for consistency
+
+Link issues to PRs:
+• Fixes #123
+• Closes #456
+• Resolves #789`,
+
+            practice: {
+              title: "Create and manage issues",
+              description: "Track work with GitHub Issues",
+              command: `# On GitHub:
+# 1. Go to Issues tab
+# 2. Click "New issue"
+# 3. Add title and description
+# 4. Apply labels (bug, enhancement, etc.)
+# 5. Assign to someone
+# 6. Submit issue
+
+# Link in commit message:
+git commit -m "Fix navigation bug, closes #42"`,
+              expectedOutput: "Issue #42 created and linked",
+              hint: "Use issue templates for consistent reporting"
+            },
+
+            quiz: [
+              {
+                question: "How do you automatically close an issue with a PR?",
+                options: [
+                  "Delete the issue manually",
+                  "Use 'Fixes #123' in PR description",
+                  "Email GitHub support",
+                  "Issues never close"
+                ],
+                correct: 1,
+                explanation: "Keywords like 'Fixes #123' in PR descriptions auto-close issues when merged"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-7",
+          title: "Collaborative Workflows",
+          content: {
+            theory: `Effective collaboration patterns:
+
+1. Feature Branch Workflow:
+   • Branch per feature
+   • PR for review
+   • Merge to main
+
+2. Forking Workflow:
+   • Fork repository
+   • Work in fork
+   • PR to original
+
+3. GitFlow with GitHub:
+   • Protected branches
+   • PR requirements
+   • Automated checks`,
+
+            practice: {
+              title: "Set up collaborative workflow",
+              description: "Configure team collaboration",
+              command: `# Add collaborators (repo settings)
+# Settings → Manage access → Invite
+
+# Set up branch protection
+# Settings → Branches → Add rule
+# - Require PR reviews: 2
+# - Dismiss stale reviews
+# - Require status checks
+
+# Create PR template
+mkdir .github
+echo "## Description
+## Type of change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+## Testing
+## Checklist
+- [ ] Code reviewed
+- [ ] Tests pass" > .github/pull_request_template.md`,
+              expectedOutput: "Collaboration workflow configured",
+              hint: "Good workflows prevent conflicts and maintain quality"
+            },
+
+            quiz: [
+              {
+                question: "What's a benefit of PR templates?",
+                options: [
+                  "Faster merging",
+                  "Consistent PR information",
+                  "Automatic approval",
+                  "Fewer branches"
+                ],
+                correct: 1,
+                explanation: "Templates ensure PRs include necessary information consistently"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-8",
+          title: "GitHub Actions Basics",
+          content: {
+            theory: `GitHub Actions automate workflows:
+
+• Continuous Integration (CI)
+• Continuous Deployment (CD)
+• Automated testing
+• Code quality checks
+• Release automation
+
+Workflow components:
+• Triggers (push, PR, schedule)
+• Jobs (units of work)
+• Steps (individual tasks)
+• Actions (reusable units)`,
+
+            practice: {
+              title: "Create a basic CI workflow",
+              description: "Automate testing with Actions",
+              command: `# Create .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run tests
+      run: |
+        npm install
+        npm test`,
+              expectedOutput: "Workflow runs on every push",
+              hint: "Start simple and expand your workflows gradually"
+            },
+
+            quiz: [
+              {
+                question: "What triggers GitHub Actions?",
+                options: [
+                  "Only manual trigger",
+                  "Events like push, PR, schedule",
+                  "GitHub staff",
+                  "Third-party services only"
+                ],
+                correct: 1,
+                explanation: "Actions trigger on events like push, pull requests, schedules, and more"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-9",
+          title: "Open Source Contribution",
+          content: {
+            theory: `Contributing to open source:
+
+1. Find projects:
+   • GitHub Explore
+   • Good First Issue label
+   • Your dependencies
+
+2. Contribution process:
+   • Read CONTRIBUTING.md
+   • Fork repository
+   • Create feature branch
+   • Make changes
+   • Submit PR
+
+3. Etiquette:
+   • Be respectful
+   • Follow guidelines
+   • Write good commit messages
+   • Be patient`,
+
+            practice: {
+              title: "Make your first open source contribution",
+              description: "Contribute to a real project",
+              command: `# 1. Find a project
+# Search: "good first issue" language:javascript
+
+# 2. Fork the repository
+
+# 3. Clone your fork
+git clone https://github.com/yourusername/project.git
+
+# 4. Create branch
+git checkout -b fix-typo
+
+# 5. Make changes, commit, push
+git add . && git commit -m "Fix typo in README"
+git push origin fix-typo
+
+# 6. Create PR from fork to original`,
+              expectedOutput: "First contribution submitted!",
+              hint: "Start small - even fixing typos helps!"
+            },
+
+            quiz: [
+              {
+                question: "What should you read before contributing?",
+                options: [
+                  "All the code",
+                  "CONTRIBUTING.md",
+                  "GitHub Terms of Service",
+                  "Nothing"
+                ],
+                correct: 1,
+                explanation: "CONTRIBUTING.md contains project-specific guidelines for contributors"
+              }
+            ]
+          }
+        },
+        {
+          id: "3-10",
+          title: "GitHub Collaboration Review",
+          content: {
+            theory: `You're now a GitHub collaboration expert!
+
+✓ GitHub fundamentals
+✓ Remote repositories
+✓ Cloning and forking
+✓ Pull requests and reviews
+✓ Issues and project management
+✓ Collaborative workflows
+✓ GitHub Actions basics
+✓ Open source contribution
+
+You're ready to collaborate on any project!`,
+
+            practice: {
+              title: "Complete collaboration workflow",
+              description: "Practice end-to-end GitHub workflow",
+              command: `# Complete workflow
+# 1. Fork a repository
+# 2. Clone your fork
+# 3. Create feature branch
+# 4. Make changes
+# 5. Push to your fork
+# 6. Create pull request
+# 7. Respond to reviews
+# 8. Get merged!
+# 9. Update your fork
+
+git remote add upstream https://github.com/original/repo.git
+git fetch upstream
+git checkout main
+git merge upstream/main`,
+              expectedOutput: "Collaboration workflow mastered!",
+              hint: "This workflow works for any GitHub project"
+            },
+
+            quiz: [
+              {
+                question: "What's the full open source contribution flow?",
+                options: [
+                  "Clone → Change → Push",
+                  "Fork → Clone → Branch → Change → PR",
+                  "Download → Edit → Upload",
+                  "Issue → Wait → Done"
+                ],
+                correct: 1,
+                explanation: "The flow is: Fork → Clone → Branch → Change → Push → PR"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    4: { // AI-Assisted Development
+      title: "AI-Assisted Development",
+      lessons: [
+        {
+          id: "4-1",
+          title: "AI Tools for Git",
+          content: {
+            theory: `AI is revolutionizing Git workflows:
+
+AI-powered tools:
+• GitHub Copilot: Code suggestions
+• Claude Code: AI-assisted development
+• AI commit messages
+• Automated PR descriptions
+• Smart conflict resolution
+• Code review assistance
+
+Benefits:
+• Faster development
+• Better commit messages
+• Improved code quality
+• Learning assistance`,
+
+            practice: {
+              title: "Set up AI tools",
+              description: "Configure AI assistants for Git",
+              command: `# GitHub Copilot setup
+# 1. Install VS Code extension
+# 2. Sign in with GitHub
+# 3. Enable for your repositories
+
+# AI commit message tool
+npm install -g aicommits
+aicommits config set openai-key YOUR_KEY
+
+# Generate commit message
+git add .
+aicommits`,
+              expectedOutput: "AI tools configured",
+              hint: "AI tools augment, not replace, your Git skills"
+            },
+
+            quiz: [
+              {
+                question: "What can AI help with in Git workflows?",
+                options: [
+                  "Only writing code",
+                  "Commit messages, PR descriptions, code review",
+                  "Deleting repositories",
+                  "Managing GitHub accounts"
+                ],
+                correct: 1,
+                explanation: "AI assists with commit messages, PR descriptions, code review, and more"
+              }
+            ]
+          }
+        },
+        {
+          id: "4-2",
+          title: "AI-Generated Commit Messages",
+          content: {
+            theory: `AI can generate meaningful commit messages by analyzing your changes:
+
+Benefits:
+• Consistent format
+• Detailed descriptions
+• Follows conventions
+• Saves time
+
+Best practices:
+• Review AI suggestions
+• Add context when needed
+• Maintain conventions
+• Don't rely entirely on AI`,
+
+            practice: {
+              title: "Use AI for commit messages",
+              description: "Generate commits with AI",
+              command: `# Using GitHub Copilot CLI
+gh copilot suggest "commit message for these changes"
+
+# Using aicommits
+git add .
+aicommits
+
+# Using custom script with Claude/GPT
+git diff --staged | ai-commit-message
+
+# Always review and edit if needed!`,
+              expectedOutput: "feat: add user authentication with JWT tokens",
+              hint: "AI suggestions are a starting point - add human context"
+            },
+
+            quiz: [
+              {
+                question: "Should you always use AI-generated commit messages as-is?",
+                options: [
+                  "Yes, they're perfect",
+                  "No, review and add context",
+                  "Never use AI",
+                  "Only for large commits"
+                ],
+                correct: 1,
+                explanation: "Review AI suggestions and add human context for clarity"
+              }
+            ]
+          }
+        },
+        {
+          id: "4-3",
+          title: "AI Code Review Assistant",
+          content: {
+            theory: `AI can enhance code reviews:
+
+• Spot potential bugs
+• Suggest improvements
+• Check best practices
+• Security scanning
+• Performance tips
+
+Tools:
+• GitHub Copilot PR reviews
+• DeepCode/Snyk
+• CodeGuru
+• SonarCloud with AI`,
+
+            practice: {
+              title: "AI-assisted code review",
+              description: "Use AI to review code",
+              command: `# GitHub Copilot for PR review
+# In PR comment:
+@copilot-review
+
+# Using CLI tools
+gh pr review --body "$(git diff main | ai-review)"
+
+# Security scanning
+snyk test
+gitleaks detect`,
+              expectedOutput: "AI review suggestions added",
+              hint: "AI catches issues humans might miss"
+            },
+
+            quiz: [
+              {
+                question: "What can AI code review tools detect?",
+                options: [
+                  "Only syntax errors",
+                  "Bugs, security issues, performance problems",
+                  "Nothing useful",
+                  "Only formatting issues"
+                ],
+                correct: 1,
+                explanation: "AI reviews can detect bugs, security vulnerabilities, and performance issues"
+              }
+            ]
+          }
+        },
+        {
+          id: "4-4",
+          title: "Claude Code Integration",
+          content: {
+            theory: `Claude Code is Anthropic's tool for AI-assisted development:
+
+Features:
+• Natural language to code
+• Explain complex Git operations
+• Generate Git workflows
+• Debug Git issues
+• Create documentation
+
+Integration points:
+• Command line interface
+• IDE extensions
+• Git hooks
+• CI/CD pipelines`,
+
+            practice: {
+              title: "Use Claude Code with Git",
+              description: "Integrate Claude into Git workflow",
+              command: `# Install Claude Code CLI
+npm install -g claude-code
+
+# Generate Git workflow
+claude-code "create a Git workflow for feature development"
+
+# Explain Git command
+claude-code explain "git rebase -i HEAD~3"
+
+# Debug Git issue
+claude-code debug "merge conflict in package.json"`,
+              expectedOutput: "Claude Code assistance provided",
+              hint: "Claude Code understands context and can explain complex Git concepts"
+            },
+
+            quiz: [
+              {
+                question: "What makes Claude Code useful for Git?",
+                options: [
+                  "It replaces Git",
+                  "Natural language interface to Git operations",
+                  "Only writes code",
+                  "Manages GitHub accounts"
+                ],
+                correct: 1,
+                explanation: "Claude Code provides a natural language interface to understand and execute Git operations"
+              }
+            ]
+          }
+        },
+        {
+          id: "4-5",
+          title: "AI-Powered Git Workflows",
+          content: {
+            theory: `Create intelligent Git workflows with AI:
+
+Examples:
+• Auto-branching based on issue description
+• Smart merge conflict resolution
+• Automated PR descriptions
+• Intelligent commit grouping
+• Predictive branch management
+
+Workflow automation:
+• Git hooks + AI
+• CI/CD + AI decisions
+• Smart notifications`,
+
+            practice: {
+              title: "Build AI-powered workflow",
+              description: "Automate Git with AI",
+              command: `# Create AI-powered Git hook
+cat > .git/hooks/prepare-commit-msg << 'EOF'
+#!/bin/bash
+# Generate commit message with AI
+if [ -z "$2" ]; then
+  git diff --staged | ai-commit > $1
+fi
+EOF
+
+chmod +x .git/hooks/prepare-commit-msg
+
+# AI-powered PR template
+ai-template "create PR template for React project" > .github/pull_request_template.md`,
+              expectedOutput: "AI workflow implemented",
+              hint: "Start simple and add AI features gradually"
+            },
+
+            quiz: [
+              {
+                question: "Where can AI be integrated in Git workflows?",
+                options: [
+                  "Only in commit messages",
+                  "Hooks, CI/CD, PR templates, reviews",
+                  "Only in GitHub",
+                  "Nowhere effectively"
+                ],
+                correct: 1,
+                explanation: "AI can enhance Git hooks, CI/CD, PR templates, reviews, and more"
+              }
+            ]
+          }
+        },
+        {
+          id: "4-6",
+          title: "AI + Git Best Practices",
+          content: {
+            theory: `Best practices for AI-assisted Git:
+
+Do:
+• Review all AI suggestions
+• Maintain human oversight
+• Use AI for repetitive tasks
+• Learn from AI explanations
+• Combine AI with Git knowledge
+
+Don't:
+• Blindly trust AI output
+• Skip code reviews
+• Ignore security warnings
+• Lose Git fundamentals
+• Over-automate
+
+Remember: AI assists, humans decide!`,
+
+            practice: {
+              title: "Implement AI best practices",
+              description: "Set up responsible AI usage",
+              command: `# Create AI usage guidelines
+cat > AI_GUIDELINES.md << 'EOF'
+# AI Tool Usage Guidelines
+
+1. Always review AI-generated content
+2. Add human context to AI suggestions
+3. Use AI for:
+   - Initial commit messages
+   - PR descriptions
+   - Code review assistance
+   - Learning Git concepts
+4. Maintain manual oversight
+5. Regular AI tool updates
+EOF
+
+git add AI_GUIDELINES.md
+git commit -m "docs: add AI usage guidelines for team"`,
+              expectedOutput: "AI guidelines documented",
+              hint: "Clear guidelines ensure effective AI usage"
+            },
+
+            quiz: [
+              {
+                question: "What's the most important AI + Git practice?",
+                options: [
+                  "Use AI for everything",
+                  "Never use AI",
+                  "Human review of AI suggestions",
+                  "Automate all decisions"
+                ],
+                correct: 2,
+                explanation: "Always maintain human oversight and review of AI-generated content"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  };
+
+  const WelcomeScreen = () => (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
+      <div className="container mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mb-6">
+            <GitBranch className="w-10 h-10" />
+          </div>
+          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+            Git Mastery
+          </h1>
+          <p className="text-xl text-gray-300 mb-8">
+            From zero to Git hero. Master version control like a pro.
+          </p>
+          <div className="flex items-center justify-center gap-2 text-yellow-400 mb-8">
+            <Star className="w-5 h-5 fill-current" />
+            <Star className="w-5 h-5 fill-current" />
+            <Star className="w-5 h-5 fill-current" />
+            <Star className="w-5 h-5 fill-current" />
+            <Star className="w-5 h-5 fill-current" />
+            <span className="ml-2 text-gray-300">Rated 5/5 by developers worldwide</span>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <Terminal className="w-8 h-8 text-green-400 mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Multi-Environment</h3>
+            <p className="text-gray-300">Master Git in Terminal, VS Code, Cursor, and with AI assistants</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <Zap className="w-8 h-8 text-yellow-400 mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Interactive Learning</h3>
+            <p className="text-gray-300">Hands-on practice with real scenarios and instant feedback</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <Trophy className="w-8 h-8 text-purple-400 mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Achievement System</h3>
+            <p className="text-gray-300">Unlock badges and track your progress to Git mastery</p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <button
+            onClick={() => setCurrentStep('onboarding')}
+            className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
+            Start Your Git Journey
+            <ArrowRight className="inline-block ml-2 w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const OnboardingScreen = () => {
+    const [step, setStep] = useState(0);
+    const [answers, setAnswers] = useState({});
+
+    const questions = [
+      {
+        id: 'name',
+        title: "What's your name, future Git wizard?",
+        subtitle: "Let's make this personal! 🧙‍♂️✨",
+        type: 'text',
+        placeholder: 'Enter your name...',
+        icon: <User className="w-6 h-6" />
+      },
+      {
+        id: 'experience',
+        title: "How would you describe your Git experience?",
+        subtitle: "Be honest - we're here to help! 💪",
+        type: 'choice',
+        options: [
+          { value: 'beginner', label: 'Total beginner', desc: 'Git? Is that a typo?' },
+          { value: 'basic', label: 'Basic knowledge', desc: 'I know git add, commit, push... sometimes' },
+          { value: 'intermediate', label: 'Intermediate', desc: 'I can branch and merge without panicking' },
+          { value: 'advanced', label: 'Advanced', desc: 'I rebase for breakfast' }
+        ],
+        icon: <TrendingUp className="w-6 h-6" />
+      },
+      {
+        id: 'environment',
+        title: "What's your preferred development environment?",
+        subtitle: "We'll tailor everything to your setup! ⚡️",
+        type: 'choice',
+        options: [
+          { value: 'terminal', label: 'Terminal/Command Line', desc: 'Pure command line power' },
+          { value: 'vscode', label: 'VS Code', desc: 'The most popular editor' },
+          { value: 'cursor', label: 'Cursor', desc: 'AI-powered coding' },
+          { value: 'mixed', label: 'Mixed approach', desc: 'I use multiple tools' }
+        ],
+        icon: <Code className="w-6 h-6" />
+      },
+      {
+        id: 'goals',
+        title: "What are your Git goals?",
+        subtitle: "Dream big! We'll get you there! 🚀",
+        type: 'multiple',
+        options: [
+          { value: 'personal', label: 'Personal projects', desc: 'Organize my own code' },
+          { value: 'team', label: 'Team collaboration', desc: 'Work effectively with others' },
+          { value: 'opensource', label: 'Open source contribution', desc: 'Give back to the community' },
+          { value: 'advanced', label: 'Advanced Git techniques', desc: 'Become a Git ninja' },
+          { value: 'ai', label: 'AI-assisted development', desc: 'Use AI tools effectively' }
+        ],
+        icon: <Target className="w-6 h-6" />
+      },
+      {
+        id: 'style',
+        title: "How do you learn best?",
+        subtitle: "Everyone's different - let's find your style! 🎯",
+        type: 'choice',
+        options: [
+          { value: 'visual', label: 'Visual learner', desc: 'Show me diagrams and examples' },
+          { value: 'hands-on', label: 'Hands-on practice', desc: 'Let me try it myself' },
+          { value: 'storytelling', label: 'Storytelling', desc: 'Tell me why and how' },
+          { value: 'structured', label: 'Structured lessons', desc: 'Step-by-step progression' }
+        ],
+        icon: <Lightbulb className="w-6 h-6" />
+      }
+    ];
+
+    const currentQuestion = questions[step];
+
+    const handleAnswer = (value) => {
+      const newAnswers = { ...answers, [currentQuestion.id]: value };
+      setAnswers(newAnswers);
+
+      if (step < questions.length - 1) {
+        setStep(step + 1);
+      } else {
+        setUserProfile(newAnswers);
+        triggerConfetti();
+        setCurrentStep('dashboard');
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
+        {showConfetti && <Confetti />}
+        <div className="container mx-auto px-6 py-12">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-3">
+                  {currentQuestion.icon}
+                </div>
+              </div>
+              <div className="flex justify-center mb-4">
+                {questions.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full mx-1 transition-all duration-300 ${
+                      i <= step ? 'bg-gradient-to-r from-purple-400 to-pink-400' : 'bg-gray-600'
+                    }`}
+                  />
+                ))}
+              </div>
+              <h2 className="text-3xl font-bold mb-2">{currentQuestion.title}</h2>
+              <p className="text-purple-200">{currentQuestion.subtitle}</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              {currentQuestion.type === 'text' && (
+                <div>
+                  <input
+                    type="text"
+                    placeholder={currentQuestion.placeholder}
+                    className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
+                        handleAnswer(e.target.value.trim());
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={(e) => {
+                      const input = e.target.previousElementSibling;
+                      if (input.value.trim()) {
+                        handleAnswer(input.value.trim());
+                      }
+                    }}
+                    className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6 py-3 rounded-lg font-semibold transition-all duration-300"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+
+              {currentQuestion.type === 'choice' && (
+                <div className="space-y-4">
+                  {currentQuestion.options.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleAnswer(option.value)}
+                      className="w-full text-left p-4 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-purple-400 rounded-lg transition-all duration-300 group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-lg">{option.label}</div>
+                          <div className="text-gray-300 text-sm">{option.desc}</div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {currentQuestion.type === 'multiple' && (
+                <div>
+                  <div className="space-y-4 mb-6">
+                    {currentQuestion.options.map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex items-center p-4 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-purple-400 rounded-lg transition-all duration-300 cursor-pointer group"
+                      >
+                        <input
+                          type="checkbox"
+                          className="mr-4 w-5 h-5 text-purple-500 bg-transparent border-2 border-white/40 rounded focus:ring-purple-500 focus:ring-2"
+                          onChange={(e) => {
+                            const current = answers[currentQuestion.id] || [];
+                            const newValue = e.target.checked
+                              ? [...current, option.value]
+                              : current.filter(v => v !== option.value);
+                            setAnswers({...answers, [currentQuestion.id]: newValue});
+                          }}
+                        />
+                        <div className="flex-1">
+                          <div className="font-semibold text-lg">{option.label}</div>
+                          <div className="text-gray-300 text-sm">{option.desc}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleAnswer(answers[currentQuestion.id] || [])}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6 py-3 rounded-lg font-semibold transition-all duration-300"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const LessonViewer = () => {
+    const [showTerminal, setShowTerminal] = useState(false);
+    const [terminalOutput, setTerminalOutput] = useState('');
+    const [currentQuizAnswer, setCurrentQuizAnswer] = useState(null);
+    const [showQuizFeedback, setShowQuizFeedback] = useState(false);
+    const [lessonComplete, setLessonComplete] = useState(false);
+
+    const moduleData = lessonsData[selectedLesson.id];
+    const currentLesson = moduleData.lessons[currentLessonIndex];
+
+    const handlePractice = () => {
+      setShowTerminal(true);
+      setTimeout(() => {
+        setTerminalOutput(currentLesson.content.practice.expectedOutput);
+      }, 1500);
+    };
+
+    const handleQuizAnswer = (answerIndex) => {
+      setCurrentQuizAnswer(answerIndex);
+      setShowQuizFeedback(true);
+
+      if (answerIndex === currentLesson.content.quiz[0].correct) {
+        setTimeout(() => {
+          markLessonComplete();
+        }, 2000);
+      }
+    };
+
+    const markLessonComplete = () => {
+      const lessonId = `${selectedLesson.id}-${currentLessonIndex}`;
+      setCompletedLessons(prev => new Set([...prev, lessonId]));
+      setLessonComplete(true);
+
+      // Update progress
+      const moduleProgress = ((completedLessons.size + 1) / moduleData.lessons.length) * 100;
+      setProgress(prev => ({...prev, [selectedLesson.id]: moduleProgress}));
+
+      // Check for achievements
+      if (completedLessons.size === 0) {
+        triggerConfetti();
+        setAchievements(prev => [...prev, 'first-lesson']);
+      }
+    };
+
+    const nextLesson = () => {
+      if (currentLessonIndex < moduleData.lessons.length - 1) {
+        setCurrentLessonIndex(currentLessonIndex + 1);
+        setShowTerminal(false);
+        setTerminalOutput('');
+        setCurrentQuizAnswer(null);
+        setShowQuizFeedback(false);
+        setLessonComplete(false);
+      } else {
+        // Module complete
+        triggerConfetti();
+        setSelectedLesson(null);
+        setCurrentLessonIndex(0);
+      }
+    };
+
+    const previousLesson = () => {
+      if (currentLessonIndex > 0) {
+        setCurrentLessonIndex(currentLessonIndex - 1);
+        setShowTerminal(false);
+        setTerminalOutput('');
+        setCurrentQuizAnswer(null);
+        setShowQuizFeedback(false);
+        setLessonComplete(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        {showConfetti && <Confetti />}
+        <div className="container mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  setSelectedLesson(null);
+                  setCurrentLessonIndex(0);
+                }}
+                className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div>
+                <div className="text-sm text-gray-400">{moduleData.title}</div>
+                <h1 className="text-3xl font-bold">{currentLesson.title}</h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-400">
+                Lesson {currentLessonIndex + 1} of {moduleData.lessons.length}
+              </div>
+              <div className="flex gap-1">
+                {moduleData.lessons.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 h-2 rounded-full ${
+                      i === currentLessonIndex
+                        ? 'bg-gradient-to-r from-green-400 to-blue-500'
+                        : completedLessons.has(`${selectedLesson.id}-${i}`)
+                        ? 'bg-green-500'
+                        : 'bg-gray-600'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Theory Section */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-purple-400" />
+                  Theory
+                </h2>
+                <div className="prose prose-invert max-w-none">
+                  <div className="whitespace-pre-line text-gray-300 leading-relaxed">
+                    {currentLesson.content.theory}
+                  </div>
+                </div>
+              </div>
+
+              {/* Practice Section */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Terminal className="w-6 h-6 text-green-400" />
+                  Practice
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">{currentLesson.content.practice.title}</h3>
+                    <p className="text-gray-300 mb-4">{currentLesson.content.practice.description}</p>
+                  </div>
+
+                  <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-400">Command:</span>
+                      <button className="text-gray-400 hover:text-white transition-colors">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <pre className="text-green-400">{currentLesson.content.practice.command}</pre>
+                  </div>
+
+                  {showTerminal && (
+                    <div className="bg-black rounded-lg p-4 font-mono text-sm">
+                      <div className="text-gray-400 mb-2">Output:</div>
+                      <div className="text-green-300">{terminalOutput}</div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-400">
+                      <AlertCircle className="inline-block w-4 h-4 mr-1" />
+                      {currentLesson.content.practice.hint}
+                    </p>
+                    <button
+                      onClick={handlePractice}
+                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 px-4 py-2 rounded-lg font-semibold transition-all duration-300"
+                    >
+                      Run Command
+                      <Play className="inline-block ml-2 w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quiz Section */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-yellow-400" />
+                  Quick Check
+                </h2>
+                <div className="space-y-4">
+                  <p className="text-lg">{currentLesson.content.quiz[0].question}</p>
+
+                  <div className="space-y-3">
+                    {currentLesson.content.quiz[0].options.map((option, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuizAnswer(index)}
+                        disabled={showQuizFeedback}
+                        className={`w-full text-left p-4 rounded-lg transition-all duration-300 ${
+                          showQuizFeedback && index === currentLesson.content.quiz[0].correct
+                            ? 'bg-green-500/30 border-2 border-green-500'
+                            : showQuizFeedback && index === currentQuizAnswer && index !== currentLesson.content.quiz[0].correct
+                            ? 'bg-red-500/30 border-2 border-red-500'
+                            : 'bg-white/10 hover:bg-white/20 border border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{option}</span>
+                          {showQuizFeedback && index === currentLesson.content.quiz[0].correct && (
+                            <Check className="w-5 h-5 text-green-400" />
+                          )}
+                          {showQuizFeedback && index === currentQuizAnswer && index !== currentLesson.content.quiz[0].correct && (
+                            <X className="w-5 h-5 text-red-400" />
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {showQuizFeedback && (
+                    <div className={`p-4 rounded-lg ${
+                      currentQuizAnswer === currentLesson.content.quiz[0].correct
+                        ? 'bg-green-500/20 border border-green-500/50'
+                        : 'bg-yellow-500/20 border border-yellow-500/50'
+                    }`}>
+                      <p className="text-sm">
+                        {currentLesson.content.quiz[0].explanation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Progress Card */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold mb-4">Your Progress</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Module Progress</span>
+                      <span>{Math.round(progress[selectedLesson.id] || 0)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                        style={{width: `${progress[selectedLesson.id] || 0}%`}}
+                      />
+                    </div>
+                  </div>
+
+                  {lessonComplete && (
+                    <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-green-400">
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="font-semibold">Lesson Complete!</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold mb-4">Navigation</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={previousLesson}
+                    disabled={currentLessonIndex === 0}
+                    className={`w-full text-left p-3 rounded-lg transition-all duration-300 flex items-center gap-3 ${
+                      currentLessonIndex === 0
+                        ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed'
+                        : 'bg-white/10 hover:bg-white/20'
+                    }`}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Previous Lesson
+                  </button>
+
+                  <button
+                    onClick={nextLesson}
+                    disabled={!lessonComplete && !completedLessons.has(`${selectedLesson.id}-${currentLessonIndex}`)}
+                    className={`w-full text-left p-3 rounded-lg transition-all duration-300 flex items-center gap-3 ${
+                      !lessonComplete && !completedLessons.has(`${selectedLesson.id}-${currentLessonIndex}`)
+                        ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white'
+                    }`}
+                  >
+                    {currentLessonIndex === moduleData.lessons.length - 1 ? 'Complete Module' : 'Next Lesson'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Tips */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-yellow-400" />
+                  Pro Tips
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-300">
+                  <li>• Practice each command in your own terminal</li>
+                  <li>• Take notes as you learn</li>
+                  <li>• Don't rush - understanding is key</li>
+                  <li>• Review previous lessons anytime</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Dashboard = () => {
+    const lessons = [
+      {
+        id: 1,
+        title: "Git Fundamentals",
+        subtitle: "The foundation of version control",
+        icon: <BookOpen className="w-6 h-6" />,
+        progress: progress[1] || 0,
+        lessons: 8,
+        difficulty: "Beginner",
+        time: "2 hours",
+        description: "Learn the core concepts of Git and why it's essential for every developer",
+        topics: ["What is Git?", "Repository basics", "Your first commit", "Working directory vs staging"]
+      },
+      {
+        id: 2,
+        title: "Branching Mastery",
+        subtitle: "Parallel development made simple",
+        icon: <GitBranch className="w-6 h-6" />,
+        progress: progress[2] || 0,
+        lessons: 12,
+        difficulty: "Intermediate",
+        time: "3 hours",
+        description: "Master branching strategies and learn to work on multiple features simultaneously",
+        topics: ["Creating branches", "Merging strategies", "Conflict resolution", "Branch workflows"]
+      },
+      {
+        id: 3,
+        title: "GitHub Collaboration",
+        subtitle: "Work effectively with teams",
+        icon: <Users className="w-6 h-6" />,
+        progress: progress[3] || 0,
+        lessons: 10,
+        difficulty: "Intermediate",
+        time: "2.5 hours",
+        description: "Learn to collaborate on GitHub like a pro with pull requests and code reviews",
+        topics: ["Pull requests", "Code reviews", "Issues & projects", "Team workflows"]
+      },
+      {
+        id: 4,
+        title: "AI-Assisted Development",
+        subtitle: "Git + AI = Superpowers",
+        icon: <Zap className="w-6 h-6" />,
+        progress: progress[4] || 0,
+        lessons: 6,
+        difficulty: "Advanced",
+        time: "1.5 hours",
+        description: "Leverage AI tools like GitHub Copilot and Claude Code with Git workflows",
+        topics: ["AI commit messages", "Smart branching", "Code generation", "Automated reviews"]
+      }
+    ];
+
+    const achievementsList = [
+      { title: "First Commit", desc: "Made your first commit", icon: "🎯", unlocked: achievements.includes('first-commit') },
+      { title: "Branch Master", desc: "Created your first branch", icon: "🌳", unlocked: achievements.includes('branch-master') },
+      { title: "Merge Ninja", desc: "Resolved your first conflict", icon: "⚔️", unlocked: achievements.includes('merge-ninja') },
+      { title: "PR Pro", desc: "Opened your first pull request", icon: "🚀", unlocked: achievements.includes('pr-pro') }
+    ];
+
+    const stats = [
+      { label: "Lessons Completed", value: completedLessons.size.toString(), icon: <CheckCircle className="w-5 h-5" /> },
+      { label: "Skill Level", value: userProfile.experience || "Beginner", icon: <TrendingUp className="w-5 h-5" /> },
+      { label: "Achievements", value: `${achievements.length}/12`, icon: <Award className="w-5 h-5" /> },
+      { label: "Study Time", value: `${Math.round(completedLessons.size * 0.3)}h`, icon: <Clock className="w-5 h-5" /> }
+    ];
+
+    if (selectedLesson) {
+      return <LessonViewer />;
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        <div className="container mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                Welcome back, {userProfile.name || 'Git Warrior'}! 👋
+              </h1>
+              <p className="text-gray-300">Ready to level up your Git skills?</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300">
+                <Settings className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded-lg">
+                <Coffee className="w-4 h-4" />
+                <span className="font-semibold">7 day streak!</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-300">{stat.icon}</div>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                </div>
+                <div className="text-sm text-gray-400">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Main Content */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Lessons */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Your Learning Path</h2>
+                <div className="text-sm text-gray-400">
+                  Customized for {userProfile.environment || 'your setup'}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {lessons.map((lesson) => (
+                  <div key={lesson.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:border-purple-400 transition-all duration-300 group cursor-pointer">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-3">
+                          {lesson.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold mb-1">{lesson.title}</h3>
+                          <p className="text-gray-300 text-sm mb-2">{lesson.subtitle}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-400">
+                            <span>{lesson.lessons} lessons</span>
+                            <span>{lesson.difficulty}</span>
+                            <span>{lesson.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSelectedLesson(lesson)}
+                        className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform group-hover:scale-105"
+                      >
+                        {lesson.progress > 0 ? 'Continue' : 'Start'}
+                        <Play className="inline-block ml-2 w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between text-sm text-gray-400 mb-1">
+                        <span>Progress</span>
+                        <span>{Math.round(lesson.progress)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                          style={{width: `${lesson.progress}%`}}
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-gray-300 text-sm mb-3">{lesson.description}</p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {lesson.topics.map((topic, index) => (
+                        <span key={index} className="px-2 py-1 bg-white/10 rounded-full text-xs text-gray-300">
+                          {topic}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Achievements */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Award className="w-5 h-5" />
+                  Achievements
+                </h3>
+                <div className="space-y-3">
+                  {achievementsList.map((achievement, index) => (
+                    <div key={index} className={`flex items-center gap-3 p-3 rounded-lg ${achievement.unlocked ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20' : 'bg-gray-800/50'}`}>
+                      <div className="text-2xl">{achievement.icon}</div>
+                      <div>
+                        <div className={`font-semibold ${achievement.unlocked ? 'text-yellow-400' : 'text-gray-400'}`}>
+                          {achievement.title}
+                        </div>
+                        <div className="text-xs text-gray-400">{achievement.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  <button className="w-full text-left p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 flex items-center gap-3">
+                    <Terminal className="w-5 h-5 text-green-400" />
+                    <span>Practice Terminal</span>
+                  </button>
+                  <button className="w-full text-left p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 flex items-center gap-3">
+                    <Github className="w-5 h-5 text-blue-400" />
+                    <span>GitHub Simulator</span>
+                  </button>
+                  <button className="w-full text-left p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 flex items-center gap-3">
+                    <Rocket className="w-5 h-5 text-purple-400" />
+                    <span>AI Assistant</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (currentStep === 'welcome') {
+    return <WelcomeScreen />;
+  }
+
+  if (currentStep === 'onboarding') {
+    return <OnboardingScreen />;
+  }
+
+  if (currentStep === 'dashboard') {
+    return <Dashboard />;
+  }
+
+  return null;
+};
+
+export default GitMasteryApp;
