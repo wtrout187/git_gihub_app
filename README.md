@@ -274,16 +274,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 ### Welcome Screen
-<img src="https://github.com/wtrout187/git_gihub_app/raw/main/public/screenshots/WelcomeG&GA.png" alt="Welcome Screen" width="800">
+![Welcome Screen](https://i.imgur.com/8ZnGUYB.png)
 
 ### Learning Dashboard
-<img src="https://github.com/wtrout187/git_gihub_app/raw/main/public/screenshots/DashboardG&GA.png" alt="Dashboard" width="800">
+![Dashboard](https://i.imgur.com/JKHYfpL.png)
 
 ### Interactive Lessons
-<img src="https://github.com/wtrout187/git_gihub_app/raw/main/public/screenshots/InteractiveLessonG&GA.png" alt="Interactive Lessons" width="800">
+![Interactive Lessons](https://i.imgur.com/pQW3hzS.png)
 
 ### Community Wiki
-<img src="https://github.com/wtrout187/git_gihub_app/raw/main/public/screenshots/WikiG&GA.png" alt="Community Wiki" width="800">
+![Community Wiki](https://i.imgur.com/L2XYtGR.png)
 
 </div>
 
