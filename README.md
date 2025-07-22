@@ -274,16 +274,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 ### Welcome Screen
-![Welcome Screen](https://i.imgur.com/8ZnGUYB.png)
+<img src="public/screenshots/WelcomeG&GA.png" alt="Welcome Screen" width="800">
 
 ### Learning Dashboard
-![Dashboard](https://i.imgur.com/JKHYfpL.png)
+<img src="public/screenshots/DashboardG&GA.png" alt="Dashboard" width="800">
 
 ### Interactive Lessons
-![Interactive Lessons](https://i.imgur.com/pQW3hzS.png)
+<img src="public/screenshots/InteractiveLessonG&GA.png" alt="Interactive Lessons" width="800">
 
 ### Community Wiki
-![Community Wiki](https://i.imgur.com/L2XYtGR.png)
+<img src="public/screenshots/WikiG&GA.png" alt="Community Wiki" width="800">
 
 </div>
 
